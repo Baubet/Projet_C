@@ -1,0 +1,28 @@
+//Readme client
+
+Les clients se lancent à partir du répertoire racine du projet (i.e. src).
+
+Les fichiers "client_orchestre.h" et "client_orchestre.c" contiennent
+les routines de communications entre l'orchestre et un client (tubes
+nommés). Ces fichiers ne sont pas dans ce répertoire, mais dans
+le répertoire de CLIENT_ORCHESTRE.
+Note importante : il faut mettre une part importante du code dans ces fichiers
+    de façon à avoir un main le plus court et le plus lisible possible
+
+Les fichiers "client_service.h" et "client_service.c" contiennent
+les routines de communications entre un service et un client (tubes
+nommés). Ces fichiers ne sont pas dans ce répertoire, mais dans
+le répertoire de CLIENT_SERVICE.
+Note importante : cf. ci-dessus
+
+Il y a un seul exécutable client qui est capable de gérer la
+communication avec n'importe quel service.
+Il suffira de lancer plusieurs fois cet exécutable pour avoir plusieurs
+clients en parallèle.
+
+Mais il y a, dans ce répertoire, une paire de fichiers par service.
+Ces fichiers contiennent :
+- les deux fonctions utilisées par le client (cf. client.c)
+Par exemple les fichiers gérant la somme de deux nombres s'appellent
+"client_somme.h" et "client_somme.c" (mais le choix est libre).
+

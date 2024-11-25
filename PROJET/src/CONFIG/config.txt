@@ -1,0 +1,8 @@
+3
+SERVICE/service
+0 ouvert
+1 ouvert
+2 ouvert
+
+# A partir de la ligne 6, les informations sont ignorées.
+# cf. config2.txt pour un exemple avec un service fermé

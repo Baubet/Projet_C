@@ -1,0 +1,7 @@
+3
+SERVICE/service
+0 ouvert
+1 ferme
+2 ouvert
+
+# A partir de la ligne 6, les informations sont ignorées.

@@ -1,0 +1,26 @@
+# ensemble d'alias utilitaires
+# pour les charger dans la console :
+#      $ source aliases
+#   ou $ . aliases
+
+# raccourcis pour lancer l'orchestre
+#
+alias  o='ORCHESTRE/orchestre CONFIG/config.txt'
+alias o2="valgrind ORCHESTRE/orchestre CONFIG/config.txt"
+alias o3="valgrind --leak-check=full --show-leak-kinds=all ORCHESTRE/orchestre CONFIG/config.txt"
+
+# idem pour le client
+# pour lancer le client somme :
+# $ c 0 33 55 "==> "
+# ==> 88
+#
+alias c=CLIENT/client
+alias c2='valgrind CLIENT/client'
+alias c3='valgrind --leak-check=full --show-leak-kinds=all CLIENT/client'
+
+# pour faire du ménage tant que tout n'est pas fonctionnel
+#
+alias rmpipe='/bin/rm -f pipe_*'
+alias rmsem='UTILS/rmsem.sh'
+alias rmall='rmpipe; rmsem'
+

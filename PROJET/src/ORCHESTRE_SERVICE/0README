@@ -1,0 +1,9 @@
+Notes techniques :
+- un sémaphore (IPC) entre l'orchestre et un service sera identifié par
+  la clé (cf. ftok) basée sur :
+      . le fichier ORCHESTRE_SERVICE/orchestre_service.h
+      . l'id valant 1+<num>
+      . où <num> est le numéro du service
+        (par exemple pour le service compression l'id est : 2)
+  il aura les droits : rw-r----x (0641)
+

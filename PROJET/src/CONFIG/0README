@@ -1,0 +1,56 @@
+Les fichiers "config.h" et "config.c" sont le code pour exploiter
+les fichiers de configuration. Ces deux fichiers font partie
+du code du projet.
+Vous n'avez pas le droit de modifier le fichier "config.h"
+
+Le fichier "config.txt" est un exemple de fichier de configuration.
+
+Le fichier "test_config.c" ne fait pas parti du projet et permet
+de tester le code de "config.c"
+
+Le code de config.c est à faire en dernier dans le projet.
+Dans le code fourni il y a des réponses en dur (code bouchon)
+qu'il est aisé de modifier.
+
+Le fichier "compile.sh" génère l'exécutable "test_config".
+Et "clean.sh" le supprime.
+
+
+
+Un fichier de configuration est construit comme suit :
+- une ligne avec un seul entier : le nombre de services
+  il doit correspondre au nombre dans SERVICE/service.h
+- une ligne avec le nom de l'exécutable gérant les services
+  chemin à partir de la racine du projet (répertoire  "src")
+- une ligne par service
+- les autres lignes du fichier ne sont pas lues si elles existent
+
+Une ligne décrivant un service contient deux informations :
+- le numéro du service
+- le mot "ouvert" ou "ferme"
+- les deux informations sont séparées par un espace
+la numérotation commence à zéro et est contiguë
+
+Exemple :
++----------------------------------+
+| 2                                |
+| SERVICE/service                  |
+| 0 ferme                          |
+| 1 ouvert                         |
+| -- à partir d'ici, rien n'est lu |
+| -- c'est donc un fichier exemple |
++----------------------------------+
+
+Le programme test_config appelle toutes les méthodes de ./config.h
+
+Voici le résultat du testeur avec mon code de config.c
+
+CONFIG$ ./compile.sh
+CONFIG$ ./test_config config2.txt
+l y a 3 service(s) (SERVICE_NB = 3)
+L'exécutable s'appelle "SERVICE/service"
+service 0 : ouvert
+service 1 : ferme 
+service 2 : ouvert
+CONFIG$ ./clean.sh
+CONFIG$ 

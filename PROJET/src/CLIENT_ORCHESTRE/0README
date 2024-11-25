@@ -1,0 +1,10 @@
+Notes techniques :
+- les deux tubes entre le client et l'orchestre s'appeleront obligatoirement :
+      . pipe_o2c : pour le sens orchestre vers client
+      . pipe_c2o : pour le sens client vers orchestre
+  ils seront présents à la racine du site (répertoire src)
+- le mutex (sémaphore IPC) sera identifié par la clé (cf. ftok) basée sur :
+      . le fichier CLIENT_ORCHESTRE/client_orchestre.h
+      . l'id valant 5
+  il aura les droits : rw-r----x (0641)
+

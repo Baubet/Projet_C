@@ -1,0 +1,8 @@
+Notes techniques :
+- les deux tubes entre le client et un service s'appeleront obligatoirement :
+      . pipe_s2c_<num> : pour le sens service vers client
+      . pipe_c2s_<num> : pour le sens client vers service
+      . où <num> est le numéro du service
+        (par exemple pour le service compression : pipe_s2c_1)
+  ils seront présents à la racine du site (répertoire src)
+  rappel : c'est l'orchestre qui les crée

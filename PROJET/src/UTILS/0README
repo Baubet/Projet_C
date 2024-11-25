@@ -1,0 +1,10 @@
+Ici, éventuellement, du code à utilité générale, i.e. non
+dédié à une partie spécifique au projet.
+
+Il y a pour l'instant :
+- myassert.h et myassert.c
+- io.h et io.c
+- memory.h
+
+Si vous rajoutez des fichiers, il faudra certainement modifier
+les différents scripts "compile.sh"

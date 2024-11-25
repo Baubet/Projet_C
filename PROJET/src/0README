@@ -1,0 +1,52 @@
+//Readme générale
+
+Le fichier "compil.sh" compile tous les exécutables dans les
+différents répertoires.
+Note : c'est violent, un Makefile aurait été plus adéquat.
+Note : dans les fichiers compil.sh, vous pouvez activer des options pour
+       réduire le nombre de warnings. En effet beaucoup de fonctions
+       vous sont proposées mais avec un code vide, ce qui fait exploser
+       le nombre de warnings.
+       Mais à la fin, il faudra remettre une vérification totale.
+
+Le fichier "clean.sh" supprime les fichiers générés par "compil.sh"
+
+Voici l'arborescence (à respecter) du projet :
+- 0README : ce fichier
+- répertoire UTILS : du code généraliste (i.e. non lié au projet et qui
+        pourrait être utilisé par d'autres personnes).
+	Par exemple le code de "myassert" y est.
+	cf. UTILS/0README
+- répertoire CONFIG  contient le code pour lire et exploiter un fichier
+        de configuration, les fichiers de configuration, ainsi
+	qu'un programme de test.
+	cf. CONFIG/0README
+- répertoire ORCHESTRE : contient le code de l'orchestre (i.e. du démon)
+	cf. ORCHESTRE/0README
+- répertoire SERVICE contient les codes de tous les services
+	cf. SERVICES/0README
+- répertoire CLIENT contient le code du client
+	cf. CLIENT/0README
+- répertoire CLIENT_ORCHESTRE contient les routines de communication entre
+	    l'orchestre et un client
+- répertoire ORCHESTRE_SERVICE contient les routines de communication entre
+        l'orchestre et les services
+- répertoire CLIENT_SERVICE contient les routines de communication entre les
+        services et les clients.
+
+
+On lance l'orchestre à partir de ce répertoire (i.e. src), par exemple :
+$ ORCHESTRE/orchestre CONFIG/config.txt
+...
+
+De même on lance un client à partir de ce répertoire, par exemple :
+$ CLIENT/client 0 345 76 "==> "
+...
+Ce qui signifie qu'on veut le service 0, pour sommer les nombres 345
+et 76, et que le résultat sera affiché et précédé de la chaine "==> "
+
+Note technique :
+si vous utilisez la fonction strdup, il faut mettre la ligne suite en tête
+du fichier .c :
+    #define _POSIX_C_SOURCE 200809L
+

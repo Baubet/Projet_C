@@ -1,0 +1,32 @@
+Les services sont lancés par l'orchestre (fork + exec)
+
+Les fichiers "client_service.h" et "client_service.c" contiennent
+les routines de communication entre les clients et les services
+(tubes nommés). Ces fichiers ne sont pas dans ce répertoire, mais dans
+le répertoire de CLIENT_SERVICE.
+Note importante : il faut mettre une part importante du code dans ces fichiers
+    de façon à avoir un main le plus court et le plus lisible possible
+
+Il y a un seul exécutable service qui est capable de gérer la
+communication avec n'importe quel client.
+
+Mais il y a, dans ce répertoire, une paire de fichiers par service.
+Ces fichiers contiennent :
+- la fonction utilisée par le service (cf. service.c)
+Par exemple les fichiers gérant la somme de deux nombres s'appellent
+"service_somme.h" et "service_somme.c" (mais le choix est libre).
+
+Cet exécutable sera lancé plusieurs fois par l'orchestre pour avoir plusieurs
+service en parallèle. Cf. ci-dessous pour que l'exécutable sache quel
+service gérer.
+
+Un programme service prend en ligne de commande les paramètres suivants :
+- le numéro du service (actuellement 0 pour la somme, 1 pour la compression,
+  et 2 pour le sigma/somme d'un tableau)
+- la clé du sémaphore pour synchroniser le service avec l'orchestre
+- le "file descriptor du tube anonyme" orchestre vers service
+- le nom du tube nommé pour la communication service vers client
+- le nom du tube nommé pour la communication client vers service
+
+Rappel : l'orchestre lancera (fork + exec) une seule instance de chaque
+service (donc actuellemnt il lancera 3 versions de l'exécutable "service")
