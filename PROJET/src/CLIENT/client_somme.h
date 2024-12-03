@@ -11,8 +11,6 @@
 // - argv[4] est une chaîne à afficher avec le résultat
 void client_somme_verifArgs(int argc, char * argv[]);
 
-
 // fonction pour gérer la communication avec le service
-void client_somme(/* fd des deux tubes avec le service, */ int argc, char * argv[]);
-
+void client_somme(int fdWrite, int fdRead, int argc, char * argv[]);
 #endif

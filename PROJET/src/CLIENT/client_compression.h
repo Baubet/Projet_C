@@ -11,6 +11,6 @@ void client_compression_verifArgs(int argc, char * argv[]);
 
 
 // fonction pour gérer la communication avec le service
-void client_compression(/* fd des deux tubes avec le service, */ int argc, char * argv[]);
+void client_compression(int fdCS_write, int fdCS_read, int argc, char * argv[]);
 
 #endif

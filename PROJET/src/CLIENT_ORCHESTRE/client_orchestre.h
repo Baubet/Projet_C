@@ -16,13 +16,8 @@
 #define PIPE_O2C "pipe_o2c"  	// Orchestre vers Client
 #define PIPE_C2O "pipe_c2o"	// Client vers Orchestre
 
-void entrerSC(int semId);
-void sortirSC(int semId);
-void my_destroy(int semId); 	// détruit semaphore
-
-void mywrite_int(int fdpipe, int x);	// écrit un entier par tube
-int myread_int(int fdpipe); 		// lit un entier par tube
-void mywrite_str(int fdpipe, const char *str); // écriture len + string par tube
+// ACCUSE DE RECEPTION (ADR)
+#define ADR 8
 
 
 #endif

@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#include "io.h"
+#include "memory.h"
+#include "myassert.h"
+
 #include "client_service.h"
 #include "client_compression.h"
 
@@ -45,9 +54,10 @@ void client_compression_verifArgs(int argc, char * argv[])
 // Les paramètres sont
 // - le file descriptor du tube de communication vers le service
 // - la chaîne devant être compressée
-static void sendData(/* fd_pipe_to_service,*/ /* chaine_à_envoyer */)
+static void sendData(int fdCS_write, const char *dataToSend)
 {
-    // envoi de la chaîne à compresser
+    // envoi de la chaîne à compresser (et sa longueur pour la lecture)
+    mywrite_str(fdCS_write, dataToSend); 
 }
 
 // ---------------------------------------------
@@ -55,10 +65,19 @@ static void sendData(/* fd_pipe_to_service,*/ /* chaine_à_envoyer */)
 // Les paramètres sont
 // - le file descriptor du tube de communication en provenance du service
 // - autre chose si nécessaire
-static void receiveResult(/* fd_pipe_from_service,*/ /* autres paramètres si nécessaire */)
+static void receiveResult(int fdCS_read)
 {
+    // récupération de la longueur de la chaîne
+    int len = myread_int(fdCS_read);
+    
     // récupération de la chaîne compressée
+    char *data_COMP = NULL;
+    myread_string(fdCS_read, len, &data_COMP); // allocation
+    
     // affichage du résultat
+    printf("%s\n", data_COMP);
+    
+    MY_FREE(data_COMP);
 }
 
 // ---------------------------------------------
@@ -68,10 +87,11 @@ static void receiveResult(/* fd_pipe_from_service,*/ /* autres paramètres si n�
 // - argc et argv fournis en ligne de commande
 // Cette fonction analyse argv et en déduit les données à envoyer
 //    - argv[2] : la chaîne à compresser
-void client_compression(/* fd des tubes avec le service, */ int argc, char * argv[])
+void client_compression(int fdCS_write, int fdCS_read, int argc, char * argv[])
 {
-    // variables locales éventuelles
-    sendData(/* paramètres */);
-    receiveResult(/* paramètres */);
+    myassert(argc == 3, "erreur client_somme.c argc != 3");
+    
+    sendData(fdCS_write, argv[2]);
+    receiveResult(fdCS_read);
 }
 

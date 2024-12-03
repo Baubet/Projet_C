@@ -2,6 +2,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <assert.h>
+
+#include "io.h"
+#include "memory.h"
+#include "myassert.h"
+
 #include "client_service.h"
 #include "client_somme.h"
 
@@ -41,14 +51,38 @@ void client_somme_verifArgs(int argc, char * argv[])
  * fonctions de communication avec le service
  *----------------------------------------------*/
 
+//-----------------------------------------------------------------
+// écriture float dans un tube
+static void mywrite_float(int fdpipe, float x)
+{
+    int ret;
+    
+    ret = write(fdpipe, &x, sizeof(float));	
+    myassert(ret != -1, "client_somme.c ERREUR ecriture pipe client service SUM (float).\n");
+    myassert(ret == sizeof(float), "client_somme.c ERREUR ecriture pipe client service SUM (size(float)).\n");
+}
+
+//-----------------------------------------------------------------
+// écriture float dans un tube
+static void myread_float(int fdpipe, float *x)
+{
+    int ret;
+    
+    ret = read(fdpipe, x, sizeof(float));	
+    myassert(ret != -1, "client_somme.c ERREUR lecture pipe client service SUM (float).\n");
+    myassert(ret == sizeof(float), "client_somme.c ERREUR lecture pipe client service SUM (size(float)).\n");
+}
+
 // ---------------------------------------------
 // fonction d'envoi des données du client au service
 // Les paramètres sont
 // - le file descriptor du tube de communication vers le service
 // - les deux float dont on veut la somme
-static void sendData(/* fd_pipe_to_service,*/ /* entier1, */ /* entier2 */)
+static void sendData(int fd_write, float f1,  float f2)
 {
     // envoi des deux nombres
+    mywrite_float(fd_write, f1);
+    mywrite_float(fd_write, f2);
 }
 
 // ---------------------------------------------
@@ -57,10 +91,14 @@ static void sendData(/* fd_pipe_to_service,*/ /* entier1, */ /* entier2 */)
 // - le file descriptor du tube de communication en provenance du service
 // - le prefixe
 // - autre chose si nécessaire
-static void receiveResult(/* fd_pipe_from_service,*/ /* préfixe, */ /* autres paramètres si nécessaire */)
+static void receiveResult(int fdRead, char * prefixe)
 {
     // récupération de la somme
+    float sum;
+    myread_float(fdRead, &sum);
+    
     // affichage du préfixe et du résultat
+    printf("%s %f\n", prefixe, sum);
 }
 
 
@@ -73,10 +111,11 @@ static void receiveResult(/* fd_pipe_from_service,*/ /* préfixe, */ /* autres p
 //    - argv[2] : premier nombre
 //    - argv[3] : deuxième nombre
 //    - argv[4] : chaîne à afficher avant le résultat
-void client_somme(/* fd des tubes avec le service, */ int argc, char * argv[])
+void client_somme(int fdCS_write, int fdCS_read, int argc, char * argv[])
 {
-    // variables locales éventuelles
-    sendData(/* paramètres */);
-    receiveResult(/* paramètres */);
+    myassert(argc == 5, "erreur client_somme.c argc != 5");
+    
+    sendData(fdCS_write, io_strToFloat(argv[2]), io_strToFloat(argv[3]));
+    receiveResult(fdCS_read, argv[4]);
 }
 
