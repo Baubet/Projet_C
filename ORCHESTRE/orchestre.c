@@ -1,4 +1,4 @@
-/* Xavier BAUBET */
+/* BAUBET */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,9 +19,9 @@
 #include "myassert.h"
 
 
-#include "../CLIENT_SERVICE/client_service.h" 
+#include "../CLIENT_SERVICE/client_service.h" // char pipe client service
  /* --- */
- 
+
 #include "config.h"
 #include "client_orchestre.h"
 #include "orchestre_service.h"
@@ -81,6 +81,42 @@ static int my_semgetWithGetKey(const char *fd, int proj_ID, key_t *key)
 }
 
 //-----------------------------------------------------------------
+// attente du sémaphore
+static void my_semwait(int semaID)
+{
+    int ret;
+    
+    // Récupérer la valeur actuelle du sémaphore
+    ret = semctl(semaID, 0, GETVAL);
+    myassert(ret != -1, "orchestre.c - ERREUR : my_semwait() - semctl with GETVAL.\n");
+    
+    if(ret == 0){
+	    struct sembuf operationAttente = {0, 0, 0};
+	    ret = semop(semaID, &operationAttente, 1);
+	    myassert(ret != -1, "orchestre.c - ERREUR : my_semwait().\n");
+    }    
+	/*else {
+        printf("Le sémaphore n'est pas utilisé ret =%d, pas d'attente.\n", ret);
+    }*/
+}
+
+//-----------------------------------------------------------------
+// oppération d'attente sur les semaphores des services
+static void sem_Wait_S(int semaID_SUM, int semaID_COMP, int semaID_SIGMA){
+	my_semwait(semaID_SUM);
+	my_semwait(semaID_COMP);
+	my_semwait(semaID_SIGMA);
+}
+
+//-----------------------------------------------------------------
+// écriture tube anonymes, pour les 3 services
+static void write_To_S(int fd_A_SUM, int fd_A_COMP, int fd_A_SIGMA, int code){
+	mywrite_int(fd_A_SUM, code);
+	mywrite_int(fd_A_COMP, code);
+	mywrite_int(fd_A_SIGMA, code);
+}
+
+//-----------------------------------------------------------------
 // attente fin d'un processus créer en fork()
 static void my_forkwait(){
     	int ret;
@@ -96,6 +132,57 @@ static void fork_Wait_allS(){
     	my_forkwait();
 }
 
+//-----------------------------------------------------------------
+// Etat d'un service, avec GETVAL du sémaphore 
+static bool isUseService(int semaID)
+{
+    int ret = semctl(semaID, 0, GETVAL);
+    myassert(ret != -1, "orchestre.c - ERREUR isUseService on semctl GETVAL.");
+
+    return (ret == 0); // true si utilisé
+    
+}
+//-----------------------------------------------------------------
+// Enregistre l'état de tout les services dans les booleans associés
+static void isUseServices(bool *isUse_S_SUM, int semaID_SUM, bool *isUse_S_COMP, int semaID_COMP, bool *isUse_S_SIGMA, int semaID_SIGMA)
+{
+
+    *isUse_S_SUM = isUseService(semaID_SUM);
+    *isUse_S_COMP = isUseService(semaID_COMP);
+    *isUse_S_SIGMA = isUseService(semaID_SIGMA);
+}
+
+//-----------------------------------------------------------------
+// création tube nommé
+static void my_mkfifo(const char *pathname, mode_t mode)
+{
+    int ret;
+    ret = mkfifo(pathname, mode);
+    myassert(ret != -1, "Erreur orchestre.c, creation tube nommé.\n");
+}
+
+//-----------------------------------------------------------------
+// suppression tube nommé
+static void my_unlink(const char *pathname)
+{
+    int ret;
+    ret = unlink(pathname);
+    myassert(ret != -1, "Erreur orchestre.c, suppression tube nommé.\n");
+}
+
+//-----------------------------------------------------------------
+// suppression de tout les tubes nommés
+static void unlink_allNamedTube()
+{
+	my_unlink(PIPE_O2C);
+	my_unlink(PIPE_C2O);
+	my_unlink(PIPE_S2C_SUM);
+	my_unlink(PIPE_C2S_SUM);
+	my_unlink(PIPE_S2C_COMP);
+	my_unlink(PIPE_C2S_COMP);
+	my_unlink(PIPE_S2C_SIGMA);
+	my_unlink(PIPE_C2S_SIGMA);
+}
 
 //-----------------------------------------------------------------
 // génération password
@@ -103,7 +190,33 @@ static void randPassword(int *x){
     *x = rand() % 96 + 4; //(entre 4 et 99) valeurs supérieurs numService
 }
 
+//-----------------------------------------------------------------
+// ouverture tube anonyme
+static void open_tubeA(int fd_A[2]) 
+{   
+    int ret;
+    
+    ret = pipe(fd_A);
+    myassert(ret == 0, "ERREUR orchestre.c open_tubeA\n"); 
+}
 
+//-----------------------------------------------------------------
+// fermeture tube anonyme inutilisé
+static void close_tubeA(int fd_A) 
+{   
+   int ret;
+    
+   ret = close(fd_A); 
+   myassert(ret == 0, "ERREUR orchestre.c close tube anonyme\n");
+}
+
+//-----------------------------------------------------------------
+// fermeture des tubes anonymes des services
+static void close_tube_A_allS(int fd_A_SUM, int fd_A_COMP, int fd_A_SIGMA){
+	close_tubeA(fd_A_SUM);
+	close_tubeA(fd_A_COMP);
+	close_tubeA(fd_A_SIGMA);
+}
 //-----------------------------------------------------------------
 // lancement service
 static void my_forkexecv(int *semaID_S, const char* fichier_SO, int ID_SO, int fd_A_SO[2], char *fdS2C, char* fdC2S, int numService)

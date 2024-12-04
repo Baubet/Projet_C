@@ -1,4 +1,4 @@
-/* Xavier BAUBET */
+/* BAUBET */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -206,7 +206,6 @@ int main(int argc, char * argv[])
 			//                 ou . client_sigma
 			else if(numService == SERVICE_SIGMA){
 				//client_sigma(fdC2S_write, fdS2C_read, argc, argv);
-				printf("client.c : Service non fonctionnel\n");
 			}
 		}
 		//         envoi d'un accusé de réception au service

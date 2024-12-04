@@ -47,21 +47,21 @@ void client_sigma_verifArgs(int argc, char * argv[])
 // - le file descriptor du tube de communication vers le service
 // - le nombre de threads que doit utiliser le service
 // - le tableau de float dont on veut la somme
-//static void sendData(/* fd_pipe_to_service,*/ /* nbre_threads, */ /* tableau_de_float_à_envoyer */)
-
+static void sendData(/* fd_pipe_to_service,*/ /* nbre_threads, */ /* tableau_de_float_à_envoyer */)
+{
     // envoi du nombre de threads et du tableau de float
-
+}
 
 // ---------------------------------------------
 // fonction de réception des résultats en provenance du service et affichage
 // Les paramètres sont
 // - le file descriptor du tube de communication en provenance du service
 // - autre chose si nécessaire
-//static void receiveResult(/* fd_pipe_from_service,*/ /* autres paramètres si nécessaire */)
-
+static void receiveResult(/* fd_pipe_from_service,*/ /* autres paramètres si nécessaire */)
+{
     // récupération du résultat
     // affichage du résultat
-
+}
 
 
 // ---------------------------------------------
@@ -72,10 +72,10 @@ void client_sigma_verifArgs(int argc, char * argv[])
 // Cette fonction analyse argv et en déduit les données à envoyer
 //    - argv[2] : nombre de threads
 //    - argv[3] à argv[argc-1]: les nombres flottants
-//void client_sigma(/* fd des tubes avec le service, */ int argc, char * argv[])
-//{
+void client_sigma(/* fd des tubes avec le service, */ int argc, char * argv[])
+{
     // variables locales éventuelles
-    //sendData(/* paramètres */);
-    //receiveResult(/* paramètres */);
-//}
+    sendData(/* paramètres */);
+    receiveResult(/* paramètres */);
+}
 
