@@ -15,31 +15,26 @@
  *----------------------------------------------*/
 
 // fonction de réception des données
-static void receiveData(/* fd_pipe_from_client, */ /* données à récupérer */)
-{
-}
+//static void receiveData(/* fd_pipe_from_client, */ /* données à récupérer */)
 
 // fonction de traitement des données
-static void computeResult(/* données récupérées, */ /* résultat */)
-{
-}
+//static void computeResult(/* données récupérées, */ /* résultat */)
 
 // fonction d'envoi du résultat
-static void sendResult(/* fd_pipe_to_client,*/ /* résultat */)
-{
-}
+//static void sendResult(/* fd_pipe_to_client,*/ /* résultat */)
+
 
 
 /*----------------------------------------------*
  * fonction appelable par le main
  *----------------------------------------------*/
-void service_sigma(/* fd tubes nommés avec un client */)
-{
+//void service_sigma(/* fd tubes nommés avec un client */)
+//{
     // initialisations diverses
     
-    receiveData(/* paramètres */);
-    computeResult(/* paramètres */);
-    sendResult(/* paramètres */);
+    //receiveData(/* paramètres */);
+    //computeResult(/* paramètres */);
+    //sendResult(/* paramètres */);
 
     // libération éventuelle de ressources
-}
+//}

@@ -18,6 +18,11 @@
 #include "memory.h"
 #include "io.h"
 
+#include "../CLIENT_SERVICE/client_service.h" 
+#include "../CONFIG/config.h"
+#include "../CLIENT_ORCHESTRE/client_orchestre.h"
+#include "../ORCHESTRE_SERVICE/orchestre_service.h"
+#include "service.h"
 
 /*===================================================================*
  * manipulations de chaînes
@@ -76,6 +81,10 @@ float io_strToFloat(const char *s)
     return val;
 }
 
+/*===================================================================================*
+ * manipulations de semaphores
+ *===================================================================================*/
+
 //-----------------------------------------------------------------
 // On entre en SC et on est bloqué s'il y a trop de monde
 void entrerSC(int semaID)
@@ -84,7 +93,7 @@ void entrerSC(int semaID)
     // paramètres : num sépamhore, opération, flags
     struct sembuf operationMoins = {0, -1, 0};
     ret = semop(semaID, &operationMoins, 1);           // bloquant si sem == 0
-    myassert(ret != -1, "ERREUR : entrerSC -> semop (orchestre/client)\n");
+    myassert(ret != -1, "ERREUR : entrerSC -> semop \n");
 }
 
 //-----------------------------------------------------------------
@@ -95,7 +104,7 @@ void sortirSC(int semaID)
     // paramètres : num sépamhore, opération, flags
     struct sembuf operationPlus = {0, 1, 0};
     ret = semop(semaID, &operationPlus, 1);
-    myassert(ret != -1, "ERREUR : sortirSC -> semop (orchestre/client)\n");
+    myassert(ret != -1, "ERREUR : sortirSC -> semop \n");
 }
 
 //-----------------------------------------------------------------
@@ -108,6 +117,121 @@ void my_destroy(int semaID)
     myassert(ret != -1, "orchestre.c - ERREUR : my_destroy().\n");
 }
 
+
+//-----------------------------------------------------------------
+// attente du sémaphore
+void my_semwait(int semaID)
+{
+    int ret;
+    
+    // Récupérer la valeur actuelle du sémaphore
+    ret = semctl(semaID, 0, GETVAL);
+    myassert(ret != -1, "orchestre.c - ERREUR : my_semwait() - semctl with GETVAL.\n");
+    
+    if(ret == 0){
+	    struct sembuf operationAttente = {0, 0, 0};
+	    ret = semop(semaID, &operationAttente, 1);
+	    myassert(ret != -1, "orchestre.c - ERREUR : my_semwait().\n");
+    }    
+	/*else {
+        printf("Le sémaphore n'est pas utilisé ret =%d, pas d'attente.\n", ret);
+    }*/
+}
+
+//-----------------------------------------------------------------
+// oppération d'attente sur les semaphores des services
+void sem_Wait_S(int semaID_SUM, int semaID_COMP, int semaID_SIGMA){
+	my_semwait(semaID_SUM);
+	my_semwait(semaID_COMP);
+	my_semwait(semaID_SIGMA);
+}
+
+//-----------------------------------------------------------------
+// Etat d'un service, avec GETVAL du sémaphore 
+bool isUseService(int semaID)
+{
+    int ret = semctl(semaID, 0, GETVAL);
+    myassert(ret != -1, "orchestre.c - ERREUR isUseService on semctl GETVAL.");
+
+    return (ret == 0); // true si utilisé
+    
+}
+
+//-----------------------------------------------------------------
+// Enregistre l'état de tout les services dans les booleans associés
+void isUseServices(bool *isUse_S_SUM, int semaID_SUM, bool *isUse_S_COMP, int semaID_COMP, bool *isUse_S_SIGMA, int semaID_SIGMA)
+{
+
+    *isUse_S_SUM = isUseService(semaID_SUM);
+    *isUse_S_COMP = isUseService(semaID_COMP);
+    *isUse_S_SIGMA = isUseService(semaID_SIGMA);
+}
+
+
+/*===================================================================================*
+ * manipulations des tubes 
+ *===================================================================================*/
+ 
+//-----------------------------------------------------------------
+// création tube nommé
+void my_mkfifo(const char *pathname, mode_t mode)
+{
+    int ret;
+    ret = mkfifo(pathname, mode);
+    myassert(ret != -1, "Erreur orchestre.c, creation tube nommé.\n");
+}
+
+//-----------------------------------------------------------------
+// suppression tube nommé
+void my_unlink(const char *pathname)
+{
+    int ret;
+    ret = unlink(pathname);
+    myassert(ret != -1, "Erreur orchestre.c, suppression tube nommé.\n");
+}
+
+//-----------------------------------------------------------------
+// suppression de tout les tubes nommés
+void unlink_allNamedTube()
+{
+	my_unlink(PIPE_O2C);
+	my_unlink(PIPE_C2O);
+	my_unlink(PIPE_S2C_SUM);
+	my_unlink(PIPE_C2S_SUM);
+	my_unlink(PIPE_S2C_COMP);
+	my_unlink(PIPE_C2S_COMP);
+	my_unlink(PIPE_S2C_SIGMA);
+	my_unlink(PIPE_C2S_SIGMA);
+}
+ 
+ //-----------------------------------------------------------------
+// ouverture tube anonyme
+void open_tubeA(int fd_A[2]) 
+{   
+    int ret;
+    
+    ret = pipe(fd_A);
+    myassert(ret == 0, "ERREUR orchestre.c open_tubeA\n"); 
+}
+
+//-----------------------------------------------------------------
+// fermeture tube anonyme inutilisé
+void close_tubeA(int fd_A) 
+{   
+   int ret;
+    
+   ret = close(fd_A); 
+   myassert(ret == 0, "ERREUR orchestre.c close tube anonyme\n");
+}
+
+//-----------------------------------------------------------------
+// fermeture des tubes anonymes des services
+void close_tube_A_allS(int fd_A_SUM, int fd_A_COMP, int fd_A_SIGMA){
+	close_tubeA(fd_A_SUM);
+	close_tubeA(fd_A_COMP);
+	close_tubeA(fd_A_SIGMA);
+}
+ 
 //-----------------------------------------------------------------
 // écriture entier dans un tube
 void mywrite_int(int fdpipe, int x)
@@ -150,6 +274,14 @@ void mywrite_str(int fdpipe, const char *str)
 }
 
 //-----------------------------------------------------------------
+// écriture tube anonymes, pour les 3 services
+void write_To_S(int fd_A_SUM, int fd_A_COMP, int fd_A_SIGMA, int code){
+	mywrite_int(fd_A_SUM, code);
+	mywrite_int(fd_A_COMP, code);
+	mywrite_int(fd_A_SIGMA, code);
+}
+
+//-----------------------------------------------------------------
 // Lecture string 
 void myread_string(int fdpipe, int len, char **pipe_name)
 {
@@ -158,8 +290,8 @@ void myread_string(int fdpipe, int len, char **pipe_name)
     MY_MALLOC(*pipe_name, char, len);
 
     ret = read(fdpipe, *pipe_name, sizeof(char) * len);
-    myassert(ret != -1, "Erreur client.c, lecture pipe (string)"); 
-    myassert(ret == len, "Erreur client.c, lecture pipe nbre octet (string)");
+    myassert(ret != -1, "Erreur lecture pipe (string)"); 
+    myassert(ret == len, "Erreur lecture pipe nbre octet (string)");
 }
 
 

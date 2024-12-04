@@ -1,4 +1,4 @@
-/* BAUBET */
+/* Xavier BAUBET */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -120,9 +120,10 @@ int main(int argc, char * argv[])
 				service_compression(fdC2S_read, fdS2C_write);
 			}
 			//                ou . service_sigma
-			/*if(numService == SERVICE_SIGMA){
-				service_sigma(fdC2S_read, fdS2C_write);
-			}*/
+			if(numService == SERVICE_SIGMA){
+				//service_sigma(fdC2S_read, fdS2C_write);
+				printf("service.c : Service non fonctionnel\n");
+			}
 			//        attente de l'accusé de réception du client
 			ret = myread_int(fdC2S_read);
         		myassert(ret == 0, "Erreur service.c, wrong ADR (!= 0)\n");
